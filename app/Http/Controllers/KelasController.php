@@ -7,8 +7,8 @@ use App\Models\Materi;
 use App\Models\PengajuanKelas;
 use App\Models\Post;
 use App\Models\RoleKelas;
-use App\Models\Submission;
 use App\Models\Tugas;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -17,7 +17,7 @@ class KelasController extends Controller
 {
     public function index(Request $request)
     {
-        $kelas = Kelas::where('user_id', $request->id)->get();
+        $kelas = RoleKelas::with('kelas')->where('user_id', $request->id)->get();
 
         return response()->json($kelas, 201);
     }
@@ -38,20 +38,21 @@ class KelasController extends Controller
         );
 
         if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors(), 'kelas' => null]);
+            return response()->json(['error' => $validator->errors()]);
         }
 
-        $kelas = Kelas::create(
+        Kelas::create(
             [
                 'user_id'   => $request->id,
                 'nama'      => $request->nama,
                 'deskripsi' => $request->deskripsi,
                 'tipe'      => $request->tipe,
-                'kode'      => Str::random(7)
+                'kode'      => Str::random(7),
+                'created_at' => Carbon::now()->setTimezone('Asia/Jakarta')->toDateTimeString()
             ]
         );
 
-        return response()->json(['error' => null, 'kelas' => $kelas], 201);
+        return response()->json(['error' => null], 201);
     }
 
     public function show(Request $request)
@@ -86,6 +87,10 @@ class KelasController extends Controller
 
     public function update(Request $request)
     {
+        if (!Kelas::where('id', $request->id)->where('user_id', $request->user)->exist()) {
+            return response()->json(['error' => 'Unauthorized']);
+        }
+
         $validator = Validator::make(
             $request->all(),
             [
@@ -100,7 +105,7 @@ class KelasController extends Controller
         );
 
         if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors(), 'kelas' => null]);
+            return response()->json(['error' => $validator->errors()]);
         }
 
         Kelas::where('id', $request->id)
@@ -108,15 +113,22 @@ class KelasController extends Controller
                 [
                     'nama'      => $request->nama,
                     'deskripsi' => $request->deskripsi,
-                    'tipe'      => $request->tipe
+                    'tipe'      => $request->tipe,
+                    'updated_at' => Carbon::now()->setTimezone('Asia/Jakarta')->toDateTimeString()
                 ]
             );
+
+        return response()->json(['error' => null]);
     }
 
     public function destroy(Request $request)
     {
+        if (!Kelas::where('id', $request->id)->where('user_id', $request->user)->exist()) {
+            return response()->json(['error' => 'Unauthorized']);
+        }
+
         Kelas::where('id', $request->kelas_id)->delete();
 
-        return response()->json(true, 201);
+        return response()->json(['error' => null], 201);
     }
 }
