@@ -26,11 +26,6 @@ class Kelas extends Model
         return $this->hasMany(RoleKelas::class);
     }
 
-    public function komentar()
-    {
-        return $this->hasMany(KomentarKelas::class);
-    }
-
     public function tugas()
     {
         return $this->hasMany(Tugas::class);
@@ -44,5 +39,10 @@ class Kelas extends Model
     public function pengajuan()
     {
         return $this->hasMany(PengajuanKelas::class);
+    }
+
+    public function post()
+    {
+        return $this->hasMany(Post::class);
     }
 }
