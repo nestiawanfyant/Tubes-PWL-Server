@@ -15,7 +15,7 @@ class CreateKomentarKelasTable extends Migration
     {
         Schema::create('komentar_kelas', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('kelas_id')->constrained()->onDelete('cascade');
+            $table->foreignId('post_id')->constrained()->onDelete('cascade');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->text('komentar');
             $table->timestamps();

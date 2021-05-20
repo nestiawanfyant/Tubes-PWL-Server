@@ -9,7 +9,7 @@ class KomentarKelas extends Model
     protected $table = 'komentar_kelas';
 
     protected $fillable = [
-        'kelas_id',
+        'post_id',
         'user_id',
         'komentar'
     ];
