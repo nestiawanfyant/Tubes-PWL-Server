@@ -50,3 +50,7 @@ $router->post('materi/komentar/destroy', 'KomentarMateri@destroy');
 
 $router->post('tugas/komentar/store',   'KomentarTugas@store');
 $router->post('tugas/komentar/destroy', 'KomentarTugasController@destroy');
+
+$router->post('tugas/submission',           'SubmissionController@index');
+$router->post('tugas/submission/store',     'SubmissionController@store');
+$router->post('tugas/submission/destroy',   'SubmissionController@destroy');
