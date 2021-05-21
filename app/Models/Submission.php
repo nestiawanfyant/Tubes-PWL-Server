@@ -12,7 +12,8 @@ class Submission extends Model
         'tugas_kelas_id',
         'user_id',
         'file',
-        'komentar'
+        'komentar',
+        'nilai'
     ];
 
     public function user()
