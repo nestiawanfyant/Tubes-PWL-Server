@@ -10,6 +10,7 @@ use App\Models\RoleKelas;
 use App\Models\Tugas;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
@@ -41,16 +42,27 @@ class KelasController extends Controller
             return response()->json(['error' => $validator->errors()]);
         }
 
-        Kelas::create(
-            [
-                'user_id'   => $request->id,
-                'nama'      => $request->nama,
-                'deskripsi' => $request->deskripsi,
-                'tipe'      => $request->tipe,
-                'kode'      => Str::random(7),
-                'created_at' => Carbon::now()->setTimezone('Asia/Jakarta')->toDateTimeString()
-            ]
-        );
+        DB::transaction(function () use ($request) {
+            $kelas = Kelas::create(
+                [
+                    'user_id'   => $request->id,
+                    'nama'      => $request->nama,
+                    'deskripsi' => $request->deskripsi,
+                    'tipe'      => $request->tipe,
+                    'kode'      => Str::random(7),
+                    'created_at' => Carbon::now()->setTimezone('Asia/Jakarta')->toDateTimeString()
+                ]
+            );
+
+            RoleKelas::create(
+                [
+                    'user_id'   => $kelas->user_id,
+                    'kelas_id'  => $kelas->id,
+                    'role'      => 1
+                ]
+            );
+        });
+
 
         return response()->json(['error' => null], 201);
     }
