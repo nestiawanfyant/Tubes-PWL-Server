@@ -14,5 +14,43 @@
 */
 
 $router->get('/', function () use ($router) {
-    return $router->app->version();
+    return "test";
 });
+
+$router->post('login',              'AuthController@login');
+$router->post('logout',             'AuthController@logout');
+$router->post('register',           'AuthController@register');
+
+
+$router->post('kelas/list',         'KelasController@index');
+$router->post('kelas/store',        'KelasController@store');
+$router->post('kelas/show',         'KelasController@show');
+$router->post('kelas/update',       'KelasController@update');
+$router->post('kelas/destroy',      'KelasController@destroy');
+
+$router->post('materi/store',       'MateriController@store');
+$router->post('materi/show',        'MateriController@show');
+$router->post('materi/update',      'MateriController@update');
+$router->post('materi/destroy',     'MateriController@destroy');
+
+$router->post('tugas/store',        'TugasController@store');
+$router->post('tugas/show',         'TugasController@show');
+$router->post('tugas/update',       'TugasController@update');
+$router->post('tugas/destroy',      'TugasController@destroy');
+
+$router->post('post/store',         'PostController@store');
+$router->post('post/update',        'PostController@update');
+$router->post('post/destroy',       'PostController@destroy');
+
+$router->post('post/komentar/store',    'KomentarKelas@store');
+$router->post('post/komentar/destroy',  'KomentarKelas@destroy');
+
+$router->post('materi/komentar/store',   'KomentarMateri@store');
+$router->post('materi/komentar/destroy', 'KomentarMateri@destroy');
+
+$router->post('tugas/komentar/store',   'KomentarTugas@store');
+$router->post('tugas/komentar/destroy', 'KomentarTugasController@destroy');
+
+$router->post('tugas/submission',           'SubmissionController@index');
+$router->post('tugas/submission/store',     'SubmissionController@store');
+$router->post('tugas/submission/destroy',   'SubmissionController@destroy');
