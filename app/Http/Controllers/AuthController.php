@@ -18,13 +18,13 @@ class AuthController extends Controller
             if (Hash::check($request->password, $user->password)) {
                 $token = Str::random(60);
 
-                User::find($user->id)->update(
+                User::where('id', $user->id)->update(
                     [
                         'remember_token' => $token
                     ]
                 );
 
-                $user = User::find($user->id)->first();
+                $user = User::find($user->id);
 
                 return response()->json(['error' => null, 'user' => $user]);
             }
@@ -55,17 +55,19 @@ class AuthController extends Controller
                 'nama'                  => ['required'],
                 'email'                 => ['required', 'unique:users,email'],
                 'password'              => ['required', 'confirmed'],
-                'password_confirmation' => ['required']
+                'password_confirmation' => ['required'],
+                'foto'                  => ['image', 'required']
             ],
-            $message = [
+            [
                 'required'              => 'Mohon isi field :attribute',
                 'email.unique'          => 'Email telah digunakan',
-                'password.confirmed'    => 'Password tidak sesuai'
+                'password.confirmed'    => 'Password tidak sesuai',
+                'image'                 => 'Masukkan file bertipe gambar'
             ]
         );
 
         if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()]);
+            return response()->json(['error' => $validator->errors()->toArray()]);
         }
 
         User::create(
