@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -59,7 +60,7 @@ class AuthController extends Controller
                 'foto'                  => ['image', 'required']
             ],
             [
-                'required'              => 'Mohon isi field :attribute',
+                'required'              => 'Mohon masukkan field :attribute',
                 'email.unique'          => 'Email telah digunakan',
                 'password.confirmed'    => 'Password tidak sesuai',
                 'image'                 => 'Masukkan file bertipe gambar'
@@ -70,13 +71,24 @@ class AuthController extends Controller
             return response()->json(['error' => $validator->errors()->toArray()]);
         }
 
-        User::create(
-            [
-                'nama'      => $request->nama,
-                'email'     => $request->email,
-                'password'  => Hash::make($request->password)
-            ]
-        );
+        DB::transaction(function () use ($request) {
+            $user = User::create(
+                [
+                    'nama'      => $request->nama,
+                    'email'     => $request->email,
+                    'password'  => Hash::make($request->password),
+                    'foto'      => $request->file('foto')->move(Str::slug($request->nama, '-') . '/foto', $request->file('foto')->getClientOriginalName())
+                ]
+            );
+
+            User::where('id', $user->id)
+                ->update(
+                    [
+                        'foto'  => url($user->foto)
+                    ]
+                );
+        });
+
 
         return response()->json(['error' => null]);
     }
