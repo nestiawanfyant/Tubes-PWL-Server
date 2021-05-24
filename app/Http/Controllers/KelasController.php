@@ -100,20 +100,14 @@ class KelasController extends Controller
 
     public function update(Request $request)
     {
-        if (!Kelas::where('id', $request->id)->where('user_id', $request->user)->exist()) {
-            return response()->json(['error' => 'Unauthorized']);
-        }
-
         $validator = Validator::make(
             $request->all(),
             [
                 'nama'          => ['required'],
-                'deskripsi'     => ['required'],
-                'tipe'          => ['required', 'in:1,2']
+                'deskripsi'     => ['nullable'],
             ],
             [
                 'required'      => 'Mohon isi field :attribute',
-                'in'            => ':attribute tidak sesuai'
             ]
         );
 
@@ -121,28 +115,68 @@ class KelasController extends Controller
             return response()->json(['error' => $validator->errors()]);
         }
 
-        Kelas::where('id', $request->id)
-            ->update(
-                [
-                    'nama'      => $request->nama,
-                    'deskripsi' => $request->deskripsi,
-                    'tipe'      => $request->tipe,
-                    'updated_at' => Carbon::now()->setTimezone('Asia/Jakarta')->toDateTimeString()
-                ]
-            );
+        if ($request->has('deskripsi')) {
+            Kelas::where('id', $request->id)
+                ->update(
+                    [
+                        'deskripsi' => $request->deskripsi,
+                    ]
+                );
+        }
+
+        if ($request->has('nama')) {
+            Kelas::where('id', $request->id)
+                ->update(
+                    [
+                        'nama'      => $request->nama,
+                        'updated_at' => Carbon::now()->setTimezone('Asia/Jakarta')->toDateTimeString()
+                    ]
+                );
+        }
 
         return response()->json(['error' => null]);
     }
 
     public function destroy(Request $request)
     {
-        if (!Kelas::where('id', $request->id)->where('user_id', $request->user)->exist()) {
-            return response()->json(['error' => 'Unauthorized']);
-        }
-
         Kelas::where('id', $request->kelas_id)->delete();
 
-        return response()->json(['error' => null], 201);
+        return response()->json(true, 201);
+    }
+
+    public function getRole(Request $request)
+    {
+        $kelas = Kelas::where('slug', $request->slug)->first();
+
+        $role = RoleKelas::where('user_id', $request->user)->where('kelas_id', $kelas->id)->first();
+
+        return response()->json($role);
+    }
+
+    public function updateRole(Request $request)
+    {
+        RoleKelas::where('id', $request->id)
+            ->update(
+                [
+                    'role' => $request->role
+                ]
+            );
+
+        return response()->json(true);
+    }
+
+    public function keluarkan(Request $request)
+    {
+        RoleKelas::where('id', $request->id)->delete();
+
+        return response()->json(true);
+    }
+
+    public function keluarKelas(Request $request)
+    {
+        RoleKelas::where('user_id', $request->user)->where('kelas_id', $request->kelas)->delete();
+
+        return response()->json(true, 200);
     }
 
     public function kelasTerbuka(Request $request)
