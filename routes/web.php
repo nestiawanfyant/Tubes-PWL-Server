@@ -26,6 +26,7 @@ $router->get('kelas/list',          'KelasController@index');
 $router->get('kelas/terbuka',       'KelasController@kelasTerbuka');
 $router->get('kelas/show',          'KelasController@show');
 $router->get('kelas/peserta',       'KelasController@pesertaList');
+$router->get('kelas/tipe',          'KelasController@getTipeKelas');
 $router->post('kelas/store',        'KelasController@store');
 $router->post('kelas/update',       'KelasController@update');
 $router->post('kelas/destroy',      'KelasController@destroy');
