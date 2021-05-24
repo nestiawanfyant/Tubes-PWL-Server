@@ -10,13 +10,15 @@ class KomentarMateriController extends Controller
 {
     public function store(Request $request)
     {
-        KomentarMateri::create(
-            [
-                'komentar'  => $request->komentar,
-                'created_at' => Carbon::now()->setTimezone('Asia/Jakarta')->toDateTimeString(),
-                'updated_at' => Carbon::now()->setTimezone('Asia/Jakarta')->toDateTimeString()
-            ]
-        );
+        if ($request->has('komentar')) {
+            KomentarMateri::create(
+                [
+                    'komentar'  => $request->komentar,
+                    'created_at' => Carbon::now()->setTimezone('Asia/Jakarta')->toDateTimeString(),
+                    'updated_at' => Carbon::now()->setTimezone('Asia/Jakarta')->toDateTimeString()
+                ]
+            );
+        }
 
         return response()->json(true, 200);
     }

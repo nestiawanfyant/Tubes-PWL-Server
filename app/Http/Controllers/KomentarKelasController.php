@@ -11,13 +11,15 @@ class KomentarKelasController extends Controller
 {
     public function store(Request $request)
     {
-        KomentarKelas::create(
-            [
-                'komentar'  => $request->komentar,
-                'created_at' => Carbon::now()->setTimezone('Asia/Jakarta')->toDateTimeString(),
-                'updated_at' => Carbon::now()->setTimezone('Asia/Jakarta')->toDateTimeString()
-            ]
-        );
+        if ($request->has('komentar')) {
+            KomentarKelas::create(
+                [
+                    'komentar'  => $request->komentar,
+                    'created_at' => Carbon::now()->setTimezone('Asia/Jakarta')->toDateTimeString(),
+                    'updated_at' => Carbon::now()->setTimezone('Asia/Jakarta')->toDateTimeString()
+                ]
+            );
+        }
 
         return response()->json(true, 200);
     }

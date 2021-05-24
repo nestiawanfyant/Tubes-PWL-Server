@@ -10,13 +10,15 @@ class KomentarTugasController extends Controller
 {
     public function store(Request $request)
     {
-        KomentarTugas::create(
-            [
-                'komentar'  => $request->komentar,
-                'created_at' => Carbon::now()->setTimezone('Asia/Jakarta')->toDateTimeString(),
-                'updated_at' => Carbon::now()->setTimezone('Asia/Jakarta')->toDateTimeString()
-            ]
-        );
+        if ($request->has('komentar')) {
+            KomentarTugas::create(
+                [
+                    'komentar'  => $request->komentar,
+                    'created_at' => Carbon::now()->setTimezone('Asia/Jakarta')->toDateTimeString(),
+                    'updated_at' => Carbon::now()->setTimezone('Asia/Jakarta')->toDateTimeString()
+                ]
+            );
+        }
 
         return response()->json(true, 200);
     }
