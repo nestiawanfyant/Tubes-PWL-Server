@@ -18,7 +18,7 @@ class KelasController extends Controller
 {
     public function index(Request $request)
     {
-        $kelas = RoleKelas::with('kelas')->where('user_id', $request->id)->get();
+        $kelas = RoleKelas::with('kelas', 'kelas.user')->where('user_id', $request->id)->get();
 
         return response()->json($kelas, 201);
     }
@@ -29,11 +29,10 @@ class KelasController extends Controller
             $request->all(),
             [
                 'nama'          => ['required'],
-                'deskripsi'     => ['required'],
                 'tipe'          => ['required', 'in:1,2']
             ],
             [
-                'required'      => 'Mohon isi field :attribute',
+                'required'      => 'Mohon masukkan field :attribute',
                 'in'            => ':attribute tidak sesuai'
             ]
         );
@@ -47,10 +46,12 @@ class KelasController extends Controller
                 [
                     'user_id'   => $request->id,
                     'nama'      => $request->nama,
-                    'deskripsi' => $request->deskripsi,
+                    'deskripsi' => $request->has('deskripsi') ? $request->deskripsi : null,
                     'tipe'      => $request->tipe,
-                    'kode'      => Str::random(7),
-                    'created_at' => Carbon::now()->setTimezone('Asia/Jakarta')->toDateTimeString()
+                    'kode'      => $request->tipe == '1' ? Str::random(7) : null,
+                    'slug'      => Str::random(10),
+                    'created_at' => Carbon::now()->setTimezone('Asia/Jakarta')->toDateTimeString(),
+                    'updated_at' => Carbon::now()->setTimezone('Asia/Jakarta')->toDateTimeString()
                 ]
             );
 
@@ -67,9 +68,9 @@ class KelasController extends Controller
         return response()->json(['error' => null], 201);
     }
 
-    public function show(Request $request)
+    public function show(Request $request, $slug)
     {
-        $kelas = Kelas::with('user')->where('id', $request->id)->first();
+        $kelas = Kelas::with('user')->where('slug', $slug)->first();
 
         $post = Post::with('komentar', 'komentar.user')->where('kelas_id', $kelas->id)->latest()->get();
 
