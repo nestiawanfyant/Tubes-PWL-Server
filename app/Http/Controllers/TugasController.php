@@ -78,16 +78,23 @@ class TugasController extends Controller
 
     public function show(Request $request)
     {
-        $tugas = Tugas::with('user')->where('id', $request->id)->first();
+        $tugas = Tugas::with('user')->where('slug', $request->slug)->first()->toArray();
 
-        $submission = Submission::where('tugas_kelas_id', $tugas->id)->where('user_id', $request->user)->first();
+        $submission = Submission::where('tugas_kelas_id', $tugas['id'])->where('user_id', $request->user)->first();
 
-        $komentar = KomentarTugas::with('user')->where('tugas_id', $tugas->id)->get();
+        $komentar = KomentarTugas::with('user')->where('tugas_kelas_id', $tugas['id'])->get();
+
+        $deadline = $tugas['deadline'] = Carbon::createFromFormat('Y-m-d H:i:s', $tugas['deadline'])->format('d-m-Y H:i');
+        $created_at = $tugas['created_at'] = Carbon::parse($tugas['created_at'])->format('d-m-Y H:i');
+
+        $tugas = Tugas::with('user')->where('slug', $request->slug)->first();
 
         $response = array(
             'tugas'     => $tugas,
             'komentar'  => $komentar,
-            'submission' => $submission
+            'submission' => $submission,
+            'deadline' => $deadline,
+            'created_at' => $created_at
         );
 
         return response()->json($response, 201);
