@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Kelas;
 use App\Models\KomentarTugas;
 use App\Models\RoleKelas;
 use App\Models\Submission;
@@ -14,13 +15,22 @@ use Illuminate\Support\Str;
 
 class TugasController extends Controller
 {
+    public function index(Request $request)
+    {
+        $kelas = Kelas::where('slug', $request->slug)->first();
+
+        $tugas = Tugas::with('user')->where('kelas_id', $kelas->id)->get();
+
+        return response()->json($tugas);
+    }
+
     public function store(Request $request)
     {
         $validator = Validator::make(
             $request->all(),
             [
                 'nama'          => ['required'],
-                'deskripsi'     => ['required'],
+                'deskripsi'     => ['nullable'],
                 'file'          => ['mimes:pdf,doc,docx,zip,png,jpg,jpeg', 'max:2048', 'nullable'],
                 'deadline'      => ['date_format:m-d-Y H:i']
             ],
@@ -36,37 +46,27 @@ class TugasController extends Controller
             return response()->json(['error' => $validator->errors()]);
         }
 
-        DB::transaction(function () use ($request) {
+        $kelas = Kelas::where('slug', $request->slug)->first();
+
+        DB::transaction(function () use ($request, $kelas) {
             $tugas = Tugas::create(
                 [
-                    'kelas_id'  => $request->kelas_id,
+                    'kelas_id'  => $kelas->id,
                     'user_id'   => $request->id,
                     'nama'      => $request->nama,
-                    'deskripsi' => $request->deskripsi,
+                    'deskripsi' => $request->has('deskripsi') ? $request->deskripsi : null,
+                    'slug'      => Str::random(10),
                     'deadline'  => Carbon::createFromFormat('m-d-Y H:i', $request->deadline)->subHours(7)->format('Y-m-d H:i:s'),
                     'created_at' => Carbon::now()->setTimezone('Asia/Jakarta')->toDateTimeString(),
                     'updated_at' => Carbon::now()->setTimezone('Asia/Jakarta')->toDateTimeString()
                 ]
             );
 
-            $roles = RoleKelas::where('kelas_id', $tugas->kelas_id)->where('role', 3)->get();
-
-            if ($roles) {
-                foreach ($roles as $role) {
-                    Submission::create(
-                        [
-                            'tugas_kelas_id' => $tugas->id,
-                            'user_id'        => $role->user_id
-                        ]
-                    );
-                }
-            }
-
             if ($request->hasFile('file')) {
                 Tugas::where('id', $tugas->id)
                     ->update(
                         [
-                            'file'  => $request->file('file')->storeAs($tugas->kelas_id . '/tugas' . '/' . Str::slug($tugas->nama), $request->file('file')->getClientOriginalName())
+                            'file'  => url($request->file('file')->move($tugas->kelas_id . '/' . $tugas->id . 'tugas' . '/' . Str::slug($tugas->nama), $request->file('file')->getClientOriginalName()))
                         ]
                     );
             }
