@@ -18,9 +18,10 @@ class CreateTugasKelasTable extends Migration
             $table->foreignId('kelas_id')->constrained()->onDelete('cascade');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('nama');
-            $table->text('deskripsi');
+            $table->text('deskripsi')->nullable();
             $table->string('file')->nullable();
             $table->timestamp('deadline');
+            $table->string('slug');
             $table->timestamps();
         });
     }

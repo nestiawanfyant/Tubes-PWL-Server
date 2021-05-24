@@ -14,7 +14,8 @@ class Tugas extends Model
         'nama',
         'deskripsi',
         'file',
-        'deadline'
+        'deadline',
+        'slug'
     ];
 
     public function user()
