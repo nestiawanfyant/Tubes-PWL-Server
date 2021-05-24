@@ -13,7 +13,8 @@ class Kelas extends Model
         'nama',
         'deskripsi',
         'kode',
-        'tipe'
+        'tipe',
+        'slug'
     ];
 
     public function user()

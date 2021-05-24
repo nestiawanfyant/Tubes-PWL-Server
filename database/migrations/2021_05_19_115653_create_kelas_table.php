@@ -17,9 +17,10 @@ class CreateKelasTable extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('nama');
-            $table->text('deskripsi');
+            $table->text('deskripsi')->nullable();
             $table->string('kode')->nullable();
             $table->integer('tipe');
+            $table->string('slug');
             $table->timestamps();
         });
     }
