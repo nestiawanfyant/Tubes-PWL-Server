@@ -22,12 +22,13 @@ $router->post('logout',             'AuthController@logout');
 $router->post('register',           'AuthController@register');
 
 
-$router->post('kelas/list',         'KelasController@index');
+$router->get('kelas/list',         'KelasController@index');
 $router->post('kelas/store',        'KelasController@store');
-$router->post('kelas/show',         'KelasController@show');
+$router->post('kelas/show/{slug}',         'KelasController@show');
 $router->post('kelas/update',       'KelasController@update');
 $router->post('kelas/destroy',      'KelasController@destroy');
 
+$router->get('materi/list',         'MateriController@index');
 $router->post('materi/store',       'MateriController@store');
 $router->post('materi/show',        'MateriController@show');
 $router->post('materi/update',      'MateriController@update');
