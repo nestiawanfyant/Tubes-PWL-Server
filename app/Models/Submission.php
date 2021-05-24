@@ -13,7 +13,8 @@ class Submission extends Model
         'user_id',
         'file',
         'komentar',
-        'nilai'
+        'nilai',
+        'slug'
     ];
 
     public function user()

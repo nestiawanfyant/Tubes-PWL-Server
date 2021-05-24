@@ -19,6 +19,7 @@ class CreateSubmissionTable extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('file')->nullable();
             $table->string('komentar')->nullable();
+            $table->string('slug');
             $table->timestamps();
         });
     }
