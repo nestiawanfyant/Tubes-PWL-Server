@@ -22,11 +22,17 @@ $router->post('logout',             'AuthController@logout');
 $router->post('register',           'AuthController@register');
 
 
-$router->get('kelas/list',         'KelasController@index');
+$router->get('kelas/list',          'KelasController@index');
+$router->get('kelas/terbuka',       'KelasController@kelasTerbuka');
+$router->get('kelas/show',          'KelasController@show');
+$router->get('kelas/peserta',       'KelasController@pesertaList');
 $router->post('kelas/store',        'KelasController@store');
-$router->post('kelas/show/{slug}',         'KelasController@show');
 $router->post('kelas/update',       'KelasController@update');
 $router->post('kelas/destroy',      'KelasController@destroy');
+$router->post('kelas/join',         'KelasController@join');
+$router->post('kelas/terbuka/join', 'KelasController@joinKelasTerbuka');
+$router->post('kelas/terbuka/accept',   'KelasController@acceptKelasTerbuka');
+$router->post('kelas/peserta/destroy',  'KelasController@pesertaDestroy');
 
 $router->get('materi/list',         'MateriController@index');
 $router->post('materi/store',       'MateriController@store');
@@ -34,6 +40,7 @@ $router->post('materi/show',        'MateriController@show');
 $router->post('materi/update',      'MateriController@update');
 $router->post('materi/destroy',     'MateriController@destroy');
 
+$router->get('tugas/list',          'TugasController@index');
 $router->post('tugas/store',        'TugasController@store');
 $router->post('tugas/show',         'TugasController@show');
 $router->post('tugas/update',       'TugasController@update');
