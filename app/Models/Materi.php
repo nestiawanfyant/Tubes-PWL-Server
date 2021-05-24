@@ -13,7 +13,8 @@ class Materi extends Model
         'user_id',
         'nama',
         'deskripsi',
-        'file'
+        'file',
+        'slug'
     ];
 
     public function user()
