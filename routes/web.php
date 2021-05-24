@@ -42,8 +42,8 @@ $router->post('materi/update',      'MateriController@update');
 $router->post('materi/destroy',     'MateriController@destroy');
 
 $router->get('tugas/list',          'TugasController@index');
+$router->get('tugas/show',          'TugasController@show');
 $router->post('tugas/store',        'TugasController@store');
-$router->post('tugas/show',         'TugasController@show');
 $router->post('tugas/update',       'TugasController@update');
 $router->post('tugas/destroy',      'TugasController@destroy');
 
