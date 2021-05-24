@@ -68,34 +68,34 @@ class KelasController extends Controller
         return response()->json(['error' => null], 201);
     }
 
-    public function show(Request $request, $slug)
+    public function show(Request $request)
     {
-        $kelas = Kelas::with('user')->where('slug', $slug)->first();
+        $kelas = Kelas::with('user')->where('slug', $request->slug)->first();
 
-        $post = Post::with('komentar', 'komentar.user')->where('kelas_id', $kelas->id)->latest()->get();
+        // $post = Post::with('komentar', 'komentar.user')->where('kelas_id', $kelas->id)->latest()->get();
 
-        $role = RoleKelas::with('user')->where('kelas_id', $kelas->id)->orderBy('role')->get();
+        // $role = RoleKelas::with('user')->where('kelas_id', $kelas->id)->orderBy('role')->get();
 
-        $materi = Materi::with('user')->where('kelas_id', $kelas->id)->get();
+        // $materi = Materi::with('user')->where('kelas_id', $kelas->id)->get();
 
-        $tugas = Tugas::with('user')->where('kelas_id', $kelas->id)->get();
+        // $tugas = Tugas::with('user')->where('kelas_id', $kelas->id)->get();
 
-        $pengajuan = PengajuanKelas::with('user')->where('kelas_id', $kelas->id)->get();
+        // $pengajuan = PengajuanKelas::with('user')->where('kelas_id', $kelas->id)->get();
 
-        if ($kelas->tipe == '1') {
-            $pengajuan = null;
-        }
+        // if ($kelas->tipe == '1') {
+        //     $pengajuan = null;
+        // }
 
-        $response = array(
-            'kelas'     => $kelas,
-            'post'      => $post,
-            'role'      => $role,
-            'materi'    => $materi,
-            'tugas'     => $tugas,
-            'pengajuan' => $pengajuan
-        );
+        // $response = array(
+        //     'kelas'     => $kelas,
+        //     'post'      => $post,
+        //     'role'      => $role,
+        //     'materi'    => $materi,
+        //     'tugas'     => $tugas,
+        //     'pengajuan' => $pengajuan
+        // );
 
-        return response()->json($response, 201);
+        return response()->json($kelas, 201);
     }
 
     public function update(Request $request)
@@ -143,5 +143,114 @@ class KelasController extends Controller
         Kelas::where('id', $request->kelas_id)->delete();
 
         return response()->json(['error' => null], 201);
+    }
+
+    public function kelasTerbuka(Request $request)
+    {
+        $kelas = Kelas::with('user')->where('tipe', 2)->get();
+
+        return response()->json($kelas);
+    }
+
+    public function join(Request $request)
+    {
+        $response = "Kode kelas tidak ditemukan";
+
+        $kelas = Kelas::where('kode', $request->kode)->first();
+
+        if ($kelas) {
+            if (!RoleKelas::where('user_id', $request->id)->where('kelas_id', $kelas->id)->exists()) {
+                RoleKelas::create(
+                    [
+                        'user_id'   => $request->id,
+                        'kelas_id'  => $kelas->id,
+                        'role'      => 3
+                    ]
+                );
+                $response = true;
+            }
+
+            $response = "Kelas telah diambil";
+        }
+
+        return response()->json($response, 200);
+    }
+
+    public function joinKelasTerbuka(Request $request)
+    {
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'motivasi' => ['required']
+            ],
+            [
+                'required'  => 'Masukkan field motivasi'
+            ]
+        );
+
+        if ($validator->fails()) {
+            return response()->json(true);
+        }
+
+        PengajuanKelas::create(
+            [
+                'user_id'   => $request->user,
+                'kelas_id'  => $request->kelas,
+                'essay'     => $request->motivasi
+            ]
+        );
+
+        return response()->json(false);
+    }
+
+    public function acceptKelasTerbuka(Request $request)
+    {
+        RoleKelas::create(
+            [
+                'user_id' => $request->user,
+                'kelas_id' => $request->kelas,
+                'role'  => 3
+            ]
+        );
+
+        return response()->json(true);
+    }
+
+    public function pesertaList(Request $request)
+    {
+        $kelas = Kelas::where('slug', $request->slug)->first();
+
+        $guru = RoleKelas::with('user')->where('kelas_id', $kelas->id)->where('role', 1)->get();
+
+        $asisten = RoleKelas::with('user')->where('kelas_id', $kelas->id)->where('role', 2)->get();
+
+        $murid = RoleKelas::with('user')->where('kelas_id', $kelas->id)->where('role', 3)->get();
+
+        $pengajuan = PengajuanKelas::with('user')->where('kelas_id', $kelas->id)->get();
+
+        $response = array(
+            'guru'      => $guru,
+            'asisten'   => $asisten,
+            'murid'     => $murid,
+            'pengajuan' => $pengajuan
+        );
+
+        return response()->json($response);
+    }
+
+    public function pesertaDestroy(Request $request)
+    {
+        RoleKelas::where('user_id', $request->user)
+            ->where('kelas_id', $request->kelas)
+            ->delete();
+
+        return response()->json(true);
+    }
+
+    public function getTipeKelas(Request $request)
+    {
+        $kelas = Kelas::where('slug', $request->slug)->first();
+
+        return response()->json($kelas->tipe);
     }
 }
