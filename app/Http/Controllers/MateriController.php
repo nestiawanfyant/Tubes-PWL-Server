@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Kelas;
 use App\Models\KomentarMateri;
 use App\Models\Materi;
 use Carbon\Carbon;
@@ -11,32 +12,44 @@ use Illuminate\Support\Str;
 
 class MateriController extends Controller
 {
+    public function index(Request $request)
+    {
+        $kelas = Kelas::where('slug', $request->slug)->first();
+
+        $materi = Materi::with('user')->where('kelas_id', $kelas->id)->get();
+
+        return response()->json($materi);
+    }
+
     public function store(Request $request)
     {
         $validator = Validator::make(
             $request->all(),
             [
                 'nama'          => ['required'],
-                'deskripsi'     => ['required'],
+                'deskripsi'     => ['nullable'],
                 'file'          => ['mimes:pdf,doc,docx,zip,png,jpg,jpeg', 'max:2048', 'nullable']
             ],
             [
-                'required'      => 'Mohon isi field :attribute',
+                'required'      => 'Mohon masukkan field :attribute',
                 'file.mimes'    => 'Masukkan file dengan format .zip, .doc, .docx, .pdf, .png, .jpg, atau .jpeg',
                 'file.max'      => 'Maksimal file berukuran 2048 KB'
             ]
         );
 
         if ($validator->fails()) {
-            return response()->josn(['error' => $validator->errors()]);
+            return response()->json(['error' => $validator->errors()]);
         }
+
+        $kelas = Kelas::where('slug', $request->slug)->first();
 
         $materi = Materi::create(
             [
-                'kelas_id'  => $request->kelas_id,
+                'kelas_id'  => $kelas->id,
                 'user_id'   => $request->id,
                 'nama'      => $request->nama,
-                'deskripsi' => $request->deskripsi,
+                'deskripsi' => $request->has('deskripsi') ? $request->deskripsi : null,
+                'slug'      => Str::random(10),
                 'created_at' => Carbon::now()->setTimezone('Asia/Jakarta')->toDateTimeString(),
                 'updated_at' => Carbon::now()->setTimezone('Asia/Jakarta')->toDateTimeString()
             ]
@@ -46,12 +59,12 @@ class MateriController extends Controller
             Materi::where('id', $materi->id)
                 ->update(
                     [
-                        'file'  => $request->file('file')->storeAs($materi->kelas_id . '/materi' . '/' . Str::slug($materi->nama), $request->file('file')->getClientOriginalName())
+                        'file'  => url($request->file('file')->move($materi->kelas_id . '/' . $materi->id . 'materi' . '/' . Str::slug($materi->nama), $request->file('file')->getClientOriginalName()))
                     ]
                 );
         }
 
-        return response()->josn(['error' => null]);
+        return response()->json(['error' => null]);
     }
 
     public function show(Request $request)
@@ -89,7 +102,7 @@ class MateriController extends Controller
         );
 
         if ($validator->fails()) {
-            return response()->josn(['error' => $validator->errors()]);
+            return response()->json(['error' => $validator->errors()]);
         }
 
         Materi::where('id', $request->id)
